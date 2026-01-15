@@ -283,7 +283,7 @@ export function ProjectTable({
       </th>;
   };
   // Render column cell based on column config
-  const cellBaseClasses = 'py-4 px-6 bg-white group-hover:bg-gray-50/50';
+  const cellBaseClasses = 'py-4 px-6 bg-white group-hover:bg-gray-50';
   const renderColumnCell = (column: ColumnConfig, project: Project) => {
     switch (column.id) {
       case 'lastRuns':
@@ -356,14 +356,14 @@ export function ProjectTable({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {projects.map(project => <tr key={project.id} className="group bg-white hover:bg-gray-50/50 transition-all duration-150 ease-out cursor-pointer">
-                <td className="sticky left-0 z-20 py-4 px-6 text-sm font-semibold text-gray-900 bg-white group-hover:bg-gray-50/50 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">
+            {projects.map(project => <tr key={project.id} className="group bg-white hover:bg-gray-50 transition-all duration-150 ease-out cursor-pointer">
+                <td className="sticky left-0 z-20 py-4 px-6 text-sm font-semibold text-gray-900 bg-white group-hover:bg-gray-50 shadow-[2px_0_4px_-2px_rgba(0,0,0,0.1)]">
                   {project.name}
                 </td>
                 {/* Dynamic columns in order */}
                 {visibleColumns.map(column => renderColumnCell(column, project))}
 
-                <td className="py-4 px-4 text-right bg-white group-hover:bg-gray-50/50">
+                <td className="py-4 px-4 text-right bg-white group-hover:bg-gray-50">
                   <button className="p-1.5 rounded-md hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-all opacity-0 group-hover:opacity-100">
                     <MoreVertIcon className="w-3.5 h-3.5" />
                   </button>
