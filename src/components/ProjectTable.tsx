@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import ContentPasteIcon from '@mui/icons-material/ContentPaste';
-import DescriptionIcon from '@mui/icons-material/Description';
 import DragIndicatorIcon from '@mui/icons-material/DragIndicator';
-import FolderIcon from '@mui/icons-material/Folder';
-import LinkIcon from '@mui/icons-material/Link';
-import MailIcon from '@mui/icons-material/Mail';
 import MoreVertIcon from '@mui/icons-material/MoreVertOutlined';
-import ShareIcon from '@mui/icons-material/Share';
-import StorageIcon from '@mui/icons-material/Storage';
-import WorkIcon from '@mui/icons-material/Work';
 import { StateBadge } from './StateBadge';
 import type { ColumnConfig } from './ColumnCustomizer';
 import { ColumnArrowDown, ColumnArrowUp } from './SortIcons';
+import aparaviIcon from '../../icons/aparavi.png';
+import attlasianIcon from '../../icons/attlasian.png';
+import classificationIcon from '../../icons/classification.png';
+import dragNDropIcon from '../../icons/dragndrop.png';
+import driveIcon from '../../icons/drive.png';
+import gmailIcon from '../../icons/gmail.png';
+import outlookIcon from '../../icons/outlook.svg';
+import webhookIcon from '../../icons/webhook.png';
 export type RunStatus = 'success' | 'failure' | 'warning';
 export type RunDetail = {
   status: RunStatus;
@@ -51,45 +51,60 @@ const NodeChip = ({
   index: number;
   total: number;
 }) => {
-  const baseClass = 'w-9 h-9 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white';
-  const iconClass = 'w-3.5 h-3.5';
+  const baseClass = 'w-8 h-8 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white';
+  const iconClass = 'w-4 h-4 object-contain';
   const style = {
     zIndex: total - index
   };
-  switch (type) {
-    case 'clipboard':
-      return <span className={baseClass} style={style}>
-          <ContentPasteIcon className={`${iconClass} text-gray-600`} />
-        </span>;
-    case 'folder':
-      return <span className={`${baseClass} bg-green-50 border-green-100`} style={style}>
-          <FolderIcon className={`${iconClass} text-green-600`} />
-        </span>;
-    case 'link':
-      return <span className={`${baseClass} bg-blue-50 border-blue-100`} style={style}>
-          <LinkIcon className={`${iconClass} text-blue-600`} />
-        </span>;
-    case 'mail':
-      return <span className={`${baseClass} bg-red-50 border-red-100`} style={style}>
-          <MailIcon className={`${iconClass} text-red-500`} />
-        </span>;
-    case 'briefcase':
-      return <span className={`${baseClass} bg-indigo-50 border-indigo-100`} style={style}>
-          <WorkIcon className={`${iconClass} text-indigo-600`} />
-        </span>;
-    case 'database':
-      return <span className={`${baseClass} bg-purple-50 border-purple-100`} style={style}>
-          <StorageIcon className={`${iconClass} text-purple-600`} />
-        </span>;
-    case 'share':
-      return <span className={`${baseClass} bg-teal-50 border-teal-100`} style={style}>
-          <ShareIcon className={`${iconClass} text-teal-600`} />
-        </span>;
-    default:
-      return <span className={baseClass} style={style}>
-          <DescriptionIcon className={`${iconClass} text-gray-500`} />
-        </span>;
-  }
+  const nodeAssets: Record<string, {
+    src: string;
+    alt: string;
+    bgClass?: string;
+  }> = {
+    clipboard: {
+      src: classificationIcon,
+      alt: 'Classification',
+      bgClass: 'bg-amber-50 border-amber-100'
+    },
+    folder: {
+      src: driveIcon,
+      alt: 'Drive',
+      bgClass: 'bg-green-50 border-green-100'
+    },
+    link: {
+      src: webhookIcon,
+      alt: 'Webhook',
+      bgClass: 'bg-blue-50 border-blue-100'
+    },
+    mail: {
+      src: gmailIcon,
+      alt: 'Gmail',
+      bgClass: 'bg-red-50 border-red-100'
+    },
+    briefcase: {
+      src: attlasianIcon,
+      alt: 'Attlasian',
+      bgClass: 'bg-indigo-50 border-indigo-100'
+    },
+    database: {
+      src: aparaviIcon,
+      alt: 'Aparavi',
+      bgClass: 'bg-purple-50 border-purple-100'
+    },
+    share: {
+      src: dragNDropIcon,
+      alt: 'Drag and drop',
+      bgClass: 'bg-teal-50 border-teal-100'
+    },
+    default: {
+      src: outlookIcon,
+      alt: 'Outlook'
+    }
+  };
+  const iconData = nodeAssets[type] ?? nodeAssets.default;
+  return <span className={baseClass} style={style}>
+      <img src={iconData.src} alt={iconData.alt} className={iconClass} />
+    </span>;
 };
 const Tooltip = ({
   children,
@@ -298,15 +313,18 @@ export function ProjectTable({
         return <td key={column.id} className="py-4 px-6 text-sm font-medium text-gray-900">
             {project.filesUploaded}
           </td>;
-      case 'nodes':
+      case 'nodes': {
+        const visibleNodes = project.nodes.slice(0, 6);
+        const hiddenCount = project.nodes.length - visibleNodes.length + (project.extraNodes ?? 0);
         return <td key={column.id} className="py-4 px-6">
-            <div className="flex items-center -space-x-2">
-              {project.nodes.map((node, i) => <NodeChip key={`${project.id}-node-${i}`} type={node} index={i} total={project.nodes.length} />)}
-              {project.extraNodes && <span className="w-9 h-9 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white text-xs font-semibold text-gray-600 ml-1">
-                  +{project.extraNodes}
+              <div className="flex items-center -space-x-2">
+              {visibleNodes.map((node, i) => <NodeChip key={`${project.id}-node-${i}`} type={node} index={i} total={visibleNodes.length} />)}
+              {hiddenCount > 0 && <span className="w-8 h-8 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white text-xs font-semibold text-gray-600 ml-1">
+                  +{hiddenCount}
                 </span>}
             </div>
           </td>;
+      }
       case 'status':
         return <td key={column.id} className="py-4 px-6">
             {project.status === 'Running' && <StateBadge />}
