@@ -51,7 +51,7 @@ const NodeChip = ({
   index: number;
   total: number;
 }) => {
-  const baseClass = 'w-8 h-8 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white';
+  const baseClass = 'w-9 h-9 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white';
   const iconClass = 'w-3.5 h-3.5';
   const style = {
     zIndex: total - index
@@ -302,7 +302,7 @@ export function ProjectTable({
         return <td key={column.id} className="py-4 px-6">
             <div className="flex items-center -space-x-2">
               {project.nodes.map((node, i) => <NodeChip key={`${project.id}-node-${i}`} type={node} index={i} total={project.nodes.length} />)}
-              {project.extraNodes && <span className="w-8 h-8 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white text-xs font-semibold text-gray-600 ml-1">
+              {project.extraNodes && <span className="w-9 h-9 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white text-xs font-semibold text-gray-600 ml-1">
                   +{project.extraNodes}
                 </span>}
             </div>
