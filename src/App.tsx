@@ -3,7 +3,6 @@ import AddIcon from '@mui/icons-material/AddOutlined';
 import MenuIcon from '@mui/icons-material/MenuOutlined';
 import { Sidebar } from './components/Sidebar';
 import { SearchBar } from './components/SearchBar';
-import { ActionButtons } from './components/ActionButtons';
 import { ProjectTable, Project, RunDetail, RunStatus } from './components/ProjectTable';
 import { ColumnCustomizer, ColumnConfig } from './components/ColumnCustomizer';
 // Helper to generate random last runs data with varied statuses
@@ -187,7 +186,7 @@ const SAMPLE_DATA: Project[] = [{
   dataProcessed: '2.8 GB',
   filesUploaded: 167
 }];
-type SortField = 'name' | 'cost' | 'dateCreated' | 'lastModified' | 'filesUploaded' | null;
+type SortField = 'name' | 'cost' | 'dateCreated' | 'lastModified' | 'filesUploaded' | 'dataProcessed' | 'status' | null;
 type SortDirection = 'asc' | 'desc';
 const DEFAULT_COLUMNS: ColumnConfig[] = [{
   id: 'name',
@@ -224,13 +223,32 @@ const DEFAULT_COLUMNS: ColumnConfig[] = [{
   visible: false
 }, {
   id: 'filesUploaded',
-  label: 'Files Uploaded',
+  label: 'Files Processed',
   visible: false
 }, {
   id: 'status',
   label: 'Status',
   visible: true
 }];
+const parseDataProcessed = (value: string) => {
+  const trimmed = value.trim().toUpperCase();
+  const match = trimmed.match(/^([\d.]+)\s*(KB|MB|GB|TB)?$/);
+  if (!match) return 0;
+  const amount = Number(match[1]);
+  if (Number.isNaN(amount)) return 0;
+  const unit = match[2] ?? 'MB';
+  const multiplier = {
+    KB: 1,
+    MB: 1024,
+    GB: 1024 * 1024,
+    TB: 1024 * 1024 * 1024
+  }[unit];
+  return amount * multiplier;
+};
+const statusOrder: Record<Project['status'], number> = {
+  Running: 0,
+  Inactive: 1
+};
 export function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -268,6 +286,10 @@ export function App() {
           comparison = a.lastModified.getTime() - b.lastModified.getTime();
         } else if (sortField === 'filesUploaded') {
           comparison = a.filesUploaded - b.filesUploaded;
+        } else if (sortField === 'dataProcessed') {
+          comparison = parseDataProcessed(a.dataProcessed) - parseDataProcessed(b.dataProcessed);
+        } else if (sortField === 'status') {
+          comparison = statusOrder[a.status] - statusOrder[b.status];
         }
         return sortDirection === 'asc' ? comparison : -comparison;
       });
@@ -294,7 +316,6 @@ export function App() {
 
             <div className="flex items-center gap-3 justify-between md:justify-start">
               <ColumnCustomizer columns={columns} onUpdate={setColumns} />
-              <ActionButtons />
 
               <button className="flex items-center px-4 py-2 bg-[#ff9200] text-white text-sm font-medium rounded hover:bg-[#e68400] transition-colors shadow-sm whitespace-nowrap">
                 <AddIcon className="w-3.5 h-3.5 mr-2" />

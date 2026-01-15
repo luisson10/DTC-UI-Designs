@@ -32,7 +32,7 @@ export type Project = {
   dataProcessed: string;
   filesUploaded: number;
 };
-type SortField = 'name' | 'cost' | 'dateCreated' | 'lastModified' | 'filesUploaded' | null;
+type SortField = 'name' | 'cost' | 'dateCreated' | 'lastModified' | 'filesUploaded' | 'dataProcessed' | 'status' | null;
 type SortDirection = 'asc' | 'desc';
 type ProjectTableProps = {
   projects: Project[];
@@ -273,7 +273,7 @@ export function ProjectTable({
       onDrop: (e: React.DragEvent) => handleDrop(e, column.id),
       onDragEnd: handleDragEnd
     } : {};
-    const sortableFields: SortField[] = ['cost', 'dateCreated', 'lastModified', 'filesUploaded'];
+    const sortableFields: SortField[] = ['cost', 'dateCreated', 'lastModified', 'filesUploaded', 'dataProcessed', 'status'];
     const isSortable = sortableFields.includes(column.id as SortField);
     return <th key={column.id} className={`${baseClasses} ${dragClasses}`} {...headerProps}>
         <div className="flex items-center gap-2">
@@ -283,34 +283,35 @@ export function ProjectTable({
       </th>;
   };
   // Render column cell based on column config
+  const cellBaseClasses = 'py-4 px-6 bg-white group-hover:bg-gray-50/50';
   const renderColumnCell = (column: ColumnConfig, project: Project) => {
     switch (column.id) {
       case 'lastRuns':
-        return <td key={column.id} className="py-4 px-6">
+        return <td key={column.id} className={cellBaseClasses}>
             <LastRunsVisualization runs={project.lastRuns} />
           </td>;
       case 'cost':
-        return <td key={column.id} className="py-4 px-6 text-sm font-semibold text-gray-900">
+        return <td key={column.id} className={`${cellBaseClasses} text-sm font-semibold text-gray-900`}>
             ${project.cost.toFixed(2)}
           </td>;
       case 'dateCreated':
-        return <td key={column.id} className="py-4 px-6 text-sm text-gray-600">
+        return <td key={column.id} className={`${cellBaseClasses} text-sm text-gray-600`}>
             {formatDate(project.dateCreated)}
           </td>;
       case 'lastModified':
-        return <td key={column.id} className="py-4 px-6 text-sm text-gray-600">
+        return <td key={column.id} className={`${cellBaseClasses} text-sm text-gray-600`}>
             {formatDate(project.lastModified)}
           </td>;
       case 'description':
-        return <td key={column.id} className="py-4 px-6 text-sm text-gray-600 max-w-xs truncate">
+        return <td key={column.id} className={`${cellBaseClasses} text-sm text-gray-600 max-w-xs truncate`}>
             {project.description}
           </td>;
       case 'dataProcessed':
-        return <td key={column.id} className="py-4 px-6 text-sm text-gray-600">
+        return <td key={column.id} className={`${cellBaseClasses} text-sm text-gray-600`}>
             {project.dataProcessed}
           </td>;
       case 'filesUploaded':
-        return <td key={column.id} className="py-4 px-6 text-sm font-medium text-gray-900">
+        return <td key={column.id} className={`${cellBaseClasses} text-sm font-medium text-gray-900`}>
             {project.filesUploaded}
           </td>;
       case 'nodes': {
@@ -318,7 +319,7 @@ export function ProjectTable({
         const visibleNodes = project.nodes.slice(0, MAX_VISIBLE);
         const totalNodes = project.nodes.length + (project.extraNodes ?? 0);
         const hiddenCount = Math.max(0, totalNodes - visibleNodes.length);
-        return <td key={column.id} className="py-4 px-6">
+        return <td key={column.id} className={cellBaseClasses}>
             <div className="flex items-center -space-x-2">
               {visibleNodes.map((node, i) => <NodeChip key={`${project.id}-node-${i}`} type={node} index={i} total={visibleNodes.length} />)}
               {visibleNodes.length === MAX_VISIBLE && hiddenCount > 0 && <span className="w-8 h-8 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white text-xs font-semibold text-gray-600 ml-1">
@@ -328,7 +329,7 @@ export function ProjectTable({
           </td>;
       }
       case 'status':
-        return <td key={column.id} className="py-4 px-6">
+        return <td key={column.id} className={cellBaseClasses}>
             {project.status === 'Running' && <StateBadge />}
           </td>;
       default:
@@ -362,7 +363,7 @@ export function ProjectTable({
                 {/* Dynamic columns in order */}
                 {visibleColumns.map(column => renderColumnCell(column, project))}
 
-                <td className="py-4 px-4 text-right">
+                <td className="py-4 px-4 text-right bg-white group-hover:bg-gray-50/50">
                   <button className="p-1.5 rounded-md hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-all opacity-0 group-hover:opacity-100">
                     <MoreVertIcon className="w-3.5 h-3.5" />
                   </button>
