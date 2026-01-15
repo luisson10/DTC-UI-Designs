@@ -314,12 +314,14 @@ export function ProjectTable({
             {project.filesUploaded}
           </td>;
       case 'nodes': {
-        const visibleNodes = project.nodes.slice(0, 6);
-        const hiddenCount = project.nodes.length - visibleNodes.length + (project.extraNodes ?? 0);
+        const MAX_VISIBLE = 5;
+        const visibleNodes = project.nodes.slice(0, MAX_VISIBLE);
+        const totalNodes = project.nodes.length + (project.extraNodes ?? 0);
+        const hiddenCount = Math.max(0, totalNodes - visibleNodes.length);
         return <td key={column.id} className="py-4 px-6">
-              <div className="flex items-center -space-x-2">
+            <div className="flex items-center -space-x-2">
               {visibleNodes.map((node, i) => <NodeChip key={`${project.id}-node-${i}`} type={node} index={i} total={visibleNodes.length} />)}
-              {hiddenCount > 0 && <span className="w-8 h-8 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white text-xs font-semibold text-gray-600 ml-1">
+              {visibleNodes.length === MAX_VISIBLE && hiddenCount > 0 && <span className="w-8 h-8 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white text-xs font-semibold text-gray-600 ml-1">
                   +{hiddenCount}
                 </span>}
             </div>
