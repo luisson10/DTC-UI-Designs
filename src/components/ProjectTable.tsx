@@ -108,19 +108,24 @@ const NodeChip = ({
 };
 const Tooltip = ({
   children,
-  content
+  content,
+  variant = 'dark'
 }: {
   children: React.ReactNode;
   content: React.ReactNode;
+  variant?: 'dark' | 'light';
 }) => {
   const [isVisible, setIsVisible] = useState(false);
+  const isLight = variant === 'light';
+  const containerClasses = isLight ? 'bg-white text-gray-700 border border-gray-200 rounded-lg shadow-lg' : 'bg-gray-900 text-white rounded-lg shadow-lg';
+  const arrowClasses = isLight ? 'border-t-white' : 'border-t-gray-900';
   return <div className="relative inline-block" onMouseEnter={() => setIsVisible(true)} onMouseLeave={() => setIsVisible(false)}>
       {children}
       {isVisible && <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-50 pointer-events-none">
-          <div className="bg-gray-900 text-white text-xs rounded-lg py-2 px-3 shadow-lg max-w-xs whitespace-nowrap">
+          <div className={`${containerClasses} text-xs py-2 px-3 max-w-xs whitespace-nowrap`}>
             {content}
             <div className="absolute top-full left-1/2 transform -translate-x-1/2 -mt-1">
-              <div className="border-4 border-transparent border-t-gray-900"></div>
+              <div className={`border-4 border-transparent ${arrowClasses}`}></div>
             </div>
           </div>
         </div>}
@@ -317,14 +322,30 @@ export function ProjectTable({
       case 'nodes': {
         const MAX_VISIBLE = 5;
         const visibleNodes = project.nodes.slice(0, MAX_VISIBLE);
+        const hiddenNodes = project.nodes.slice(MAX_VISIBLE);
         const totalNodes = project.nodes.length + (project.extraNodes ?? 0);
         const hiddenCount = Math.max(0, totalNodes - visibleNodes.length);
+        const extraPlaceholders = Math.max(0, hiddenCount - hiddenNodes.length);
+        const tooltipNodes = [...hiddenNodes, ...Array(extraPlaceholders).fill('default')];
+        const tooltipRows = tooltipNodes.reduce<string[][]>((rows, node, index) => {
+          if (index % MAX_VISIBLE === 0) {
+            rows.push([]);
+          }
+          rows[rows.length - 1].push(node);
+          return rows;
+        }, []);
         return <td key={column.id} className={cellBaseClasses}>
             <div className="flex items-center -space-x-2">
               {visibleNodes.map((node, i) => <NodeChip key={`${project.id}-node-${i}`} type={node} index={i} total={visibleNodes.length} />)}
-              {visibleNodes.length === MAX_VISIBLE && hiddenCount > 0 && <span className="w-8 h-8 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white text-xs font-semibold text-gray-600 ml-1">
-                  +{hiddenCount}
-                </span>}
+              {visibleNodes.length === MAX_VISIBLE && hiddenCount > 0 && <Tooltip variant="light" content={<div className="flex flex-col gap-2 p-1">
+                      {tooltipRows.map((row, rowIndex) => <div key={`${project.id}-hidden-row-${rowIndex}`} className="flex items-center -space-x-2">
+                          {row.map((node, nodeIndex) => <NodeChip key={`${project.id}-hidden-node-${rowIndex}-${nodeIndex}`} type={node} index={nodeIndex} total={row.length} />)}
+                        </div>)}
+                    </div>}>
+                  <span className="w-8 h-8 rounded-full border border-gray-200 bg-white shadow-sm flex items-center justify-center ring-2 ring-white text-xs font-semibold text-gray-600 ml-1">
+                    +{hiddenCount}
+                  </span>
+                </Tooltip>}
             </div>
           </td>;
       }
